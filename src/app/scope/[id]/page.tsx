@@ -94,6 +94,25 @@ export default function ScopePageViewer() {
     saveScope(updated);
   };
 
+  const handleBulkApproval = (category: string, approved: boolean) => {
+    const isFreelancerTurn = scope.status === 'freelancer_review' && isFreelancer;
+    const isClientTurn = scope.status === 'client_review' && !isFreelancer;
+    
+    if (!isFreelancerTurn && !isClientTurn) return;
+
+    const updatedItems = scope.items.map(item => {
+      if (item.category === category) {
+        return isFreelancerTurn 
+          ? { ...item, freelancerApproved: approved }
+          : { ...item, clientApproved: approved };
+      }
+      return item;
+    });
+    const updated = { ...scope, items: updatedItems };
+    setScope(updated);
+    saveScope(updated);
+  };
+
   const handleFreelancerSubmit = () => {
     try {
       const updated = transitionScope(scope, 'client_review');
@@ -276,6 +295,39 @@ export default function ScopePageViewer() {
       );
     }
     return null;
+  };
+
+  const renderBulkApprovalButtons = (category: string) => {
+    const isFreelancerTurn = scope.status === 'freelancer_review' && isFreelancer;
+    const isClientTurn = scope.status === 'client_review' && !isFreelancer;
+    
+    if (!isFreelancerTurn && !isClientTurn) return null;
+
+    const categoryItems = scope.items.filter(i => i.category === category);
+    if (categoryItems.length === 0) return null;
+
+    const allApproved = categoryItems.every(i => isFreelancerTurn ? i.freelancerApproved === true : i.clientApproved === true);
+    const allRejected = categoryItems.every(i => isFreelancerTurn ? i.freelancerApproved === false : i.clientApproved === false);
+
+    return (
+      <div className="ml-auto flex items-center gap-2">
+        <span className="text-xs font-medium text-white/50 mr-2 uppercase tracking-wider hidden sm:inline-block">Select All:</span>
+        <button 
+          onClick={() => handleBulkApproval(category, true)}
+          className={`p-2 rounded-full transition-all ${allApproved ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white hover:scale-110'}`}
+          title="Approve All"
+        >
+          <Check className="w-5 h-5" />
+        </button>
+        <button 
+          onClick={() => handleBulkApproval(category, false)}
+          className={`p-2 rounded-full transition-all ${allRejected ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:scale-110'}`}
+          title="Reject All"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+    );
   };
 
   const getItemStyle = (item: ScopeItem) => {
@@ -600,7 +652,7 @@ export default function ScopePageViewer() {
           <div className="bg-green-500/10 px-8 py-5 border-b border-green-500/10 flex items-center gap-3">
             <CheckCircle2 className="h-6 w-6 text-green-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
             <h2 className="text-xl font-semibold text-green-400 tracking-wide">In Scope</h2>
-            <span className="ml-auto text-sm text-green-400/60 font-medium">Included deliverables</span>
+            {renderBulkApprovalButtons('in-scope') || <span className="ml-auto text-sm text-green-400/60 font-medium">Included deliverables</span>}
           </div>
           <div className="p-8">
             <ul className="space-y-5">
@@ -627,6 +679,7 @@ export default function ScopePageViewer() {
             <div className="bg-red-500/10 px-6 py-5 border-b border-red-500/10 flex items-center gap-3">
               <XCircle className="h-5 w-5 text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />
               <h2 className="text-lg font-semibold text-red-400 tracking-wide">Out of Scope</h2>
+              {renderBulkApprovalButtons('out-of-scope')}
             </div>
             <div className="p-6">
               <ul className="space-y-4">
@@ -652,6 +705,7 @@ export default function ScopePageViewer() {
             <div className="bg-orange-500/10 px-6 py-5 border-b border-orange-500/10 flex items-center gap-3">
               <HelpCircle className="h-5 w-5 text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
               <h2 className="text-lg font-semibold text-orange-400 tracking-wide">Assumptions</h2>
+              {renderBulkApprovalButtons('assumption')}
             </div>
             <div className="p-6">
               <ul className="space-y-4">
