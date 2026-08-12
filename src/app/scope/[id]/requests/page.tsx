@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getScope, getRequests, saveRequest } from '@/lib/storage';
-import { ScopePage, ChangeRequest } from '@/lib/types';
+import { getScope, getRequests, saveRequest, addChangeOrder } from '@/lib/storage';
+import { ScopePage, ChangeRequest, ChangeOrder } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Check, X, HandCoins, AlertCircle, Clock, Send, DollarSign, CheckCircle2 } from 'lucide-react';
@@ -45,32 +45,56 @@ export default function ScopeRequestsPage() {
     );
   }
 
-  const handleAction = (request: ChangeRequest, action: 'approve' | 'decline' | 'counter') => {
-    const updated = { ...request, status: action === 'approve' ? 'approved' : action === 'decline' ? 'declined' : 'countered' as any };
-    
-    if (action === 'counter') {
-      const priceState = customPrices[request.id];
-      if (!priceState || !priceState.value) {
-        toast.error("Please enter a custom price");
-        return;
-      }
-      
-      const val = parseFloat(priceState.value);
-      if (isNaN(val)) {
-        toast.error("Invalid price amount");
-        return;
-      }
-      
-      updated.freelancerCounterOffer = priceState.isHourly ? val * (parseFloat(priceState.hours) || 1) : val;
+  const handleCounterOffer = (request: ChangeRequest) => {
+    const priceState = customPrices[request.id];
+    if (!priceState || !priceState.value) {
+      toast.error("Please enter a custom price");
+      return;
     }
-
-    updated.resolvedAt = new Date().toISOString();
-    saveRequest(updated);
     
-    // update local state
+    const val = parseFloat(priceState.value);
+    if (isNaN(val)) {
+      toast.error("Invalid price amount");
+      return;
+    }
+    
+    const offer = priceState.isHourly ? val * (parseFloat(priceState.hours) || 1) : val;
+    const updated = { ...request, status: 'countered' as any, freelancerCounterOffer: offer, resolvedAt: new Date().toISOString() };
+    
+    saveRequest(updated);
     setRequests(prev => prev.map(r => r.id === request.id ? updated : r));
-    toast.success(`Request ${action}d successfully`);
+    toast.success("Counter-offer sent to client");
     setActiveCounterId(null);
+  };
+
+  const handleApproveChange = (request: ChangeRequest, price: number) => {
+    const updated = { ...request, status: 'approved' as any, resolvedAt: new Date().toISOString() };
+    saveRequest(updated);
+    setRequests(prev => prev.map(r => r.id === request.id ? updated : r));
+
+    // Automatically add to scope change orders
+    const changeOrder: ChangeOrder = {
+      id: Math.random().toString(36).substring(2, 15),
+      requestText: request.requestText,
+      description: request.requestText,
+      approvedPrice: price,
+      approvedAt: new Date().toISOString(),
+      originalRequestId: request.id
+    };
+    
+    try {
+      addChangeOrder(scope.id, changeOrder);
+      toast.success("Change approved and added to scope budget");
+    } catch (e: any) {
+      toast.error("Approved, but failed to update scope: " + e.message);
+    }
+  };
+
+  const handleDeclineChange = (request: ChangeRequest) => {
+    const updated = { ...request, status: 'declined' as any, resolvedAt: new Date().toISOString() };
+    saveRequest(updated);
+    setRequests(prev => prev.map(r => r.id === request.id ? updated : r));
+    toast.success("Request declined");
   };
 
   const pendingRequests = requests.filter(r => r.status === 'pending');
@@ -170,7 +194,7 @@ export default function ScopeRequestsPage() {
                           />
                         </div>
                         <Button 
-                          onClick={() => handleAction(req, 'counter')}
+                          onClick={() => handleCounterOffer(req)}
                           className="mt-6 bg-primary hover:bg-primary/90 text-white"
                         >
                           Send Counter <Send className="w-4 h-4 ml-2" />
@@ -181,7 +205,7 @@ export default function ScopeRequestsPage() {
                   ) : (
                     <div className="flex flex-wrap gap-3 pt-2 border-t border-white/10">
                       {req.aiAnalysis.verdict === 'in-scope' ? (
-                        <Button onClick={() => handleAction(req, 'approve')} className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl">
+                        <Button onClick={() => handleApproveChange(req, 0)} className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl">
                           <Check className="w-4 h-4 mr-2" /> Approve (No Charge)
                         </Button>
                       ) : (
@@ -191,13 +215,16 @@ export default function ScopeRequestsPage() {
                           </Button>
                           <Button onClick={() => {
                              setCustomPrices({...customPrices, [req.id]: {value: req.aiAnalysis.estimatedCostMedian.toString(), isHourly: false, hours: ''}});
-                             handleAction(req, 'counter');
+                             const updated = { ...req, status: 'countered' as any, freelancerCounterOffer: req.aiAnalysis.estimatedCostMedian, resolvedAt: new Date().toISOString() };
+                             saveRequest(updated);
+                             setRequests(prev => prev.map(r => r.id === req.id ? updated : r));
+                             toast.success("Counter-offer sent to client");
                           }} variant="outline" className="rounded-xl border-white/20">
                             Use AI Median (${req.aiAnalysis.estimatedCostMedian})
                           </Button>
                         </>
                       )}
-                      <Button onClick={() => handleAction(req, 'decline')} variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl ml-auto">
+                      <Button onClick={() => handleDeclineChange(req)} variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl ml-auto">
                         <X className="w-4 h-4 mr-2" /> Decline
                       </Button>
                     </div>

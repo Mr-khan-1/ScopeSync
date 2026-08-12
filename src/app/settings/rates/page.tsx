@@ -184,6 +184,17 @@ export default function RatesSettingsPage() {
                 onChange={(e) => setSettings({...settings, freelancerName: e.target.value})}
               />
             </div>
+            <div>
+              <Label htmlFor="freelancerEmail" className="text-slate-300">Your Email</Label>
+              <Input
+                id="freelancerEmail"
+                type="email"
+                value={settings.freelancerEmail || ''}
+                onChange={(e) => setSettings({...settings, freelancerEmail: e.target.value})}
+                placeholder="you@example.com"
+                className="mt-1.5 bg-slate-900/50 border-slate-700 text-white"
+              />
+            </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-white/80">Your Hourly Rate ($)</label>
@@ -193,6 +204,23 @@ export default function RatesSettingsPage() {
                 value={settings.hourlyRate}
                 onChange={(e) => setSettings({...settings, hourlyRate: Number(e.target.value)})}
               />
+            </div>
+            <div>
+              <Label htmlFor="defaultCurrency" className="text-slate-300">Default Currency</Label>
+              <select
+                id="defaultCurrency"
+                value={settings.defaultCurrency}
+                onChange={(e) => setSettings({...settings, defaultCurrency: e.target.value as any})}
+                className="w-full mt-1.5 bg-slate-900/50 border border-slate-700 rounded-md px-3 py-2 text-white text-sm"
+              >
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="PKR">PKR (Rs.)</option>
+                <option value="AUD">AUD (A$)</option>
+                <option value="CAD">CAD (C$)</option>
+                <option value="INR">INR (₹)</option>
+              </select>
             </div>
             
             <div className="space-y-2">

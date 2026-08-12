@@ -7,6 +7,15 @@ export interface ScopeItem {
   estimatedPrice?: number;
 }
 
+export interface ChangeOrder {
+  id: string;
+  requestText: string;
+  description: string;
+  approvedPrice: number;
+  approvedAt: string;
+  originalRequestId: string;
+}
+
 export interface ScopePage {
   id: string;
   title: string;
@@ -14,7 +23,7 @@ export interface ScopePage {
   timeline?: string | null;
   revisionPolicy?: string | null;
   createdAt: string;
-  status: 'draft' | 'freelancer_review' | 'client_review' | 'locked' | 'archived';
+  status: 'draft' | 'freelancer_review' | 'client_review' | 'client_signed' | 'locked' | 'archived';
   lockedAt: string | null;
   freelancerName: string;
   freelancerEmail?: string;
@@ -26,12 +35,18 @@ export interface ScopePage {
   budgetType: 'hourly' | 'fixed_total';
   totalBudget?: number;
   hourlyRate?: number;
+  currency: string;
   signature?: {
     signerName: string;
     signedAt: string;
     type: 'freelancer' | 'agency';
     stampDataUrl?: string;
   };
+  clientSignature?: {
+    signerName: string;
+    signedAt: string;
+  };
+  changeOrders?: ChangeOrder[];
 }
 
 export interface ChangeRequest {
@@ -53,7 +68,7 @@ export interface ChangeRequest {
     marketBenchmark?: { low: number; median: number; high: number };
     budgetImpact?: string;
   };
-  status: 'pending' | 'approved' | 'declined' | 'countered';
+  status: 'pending' | 'countered' | 'approved' | 'declined';
   freelancerCounterOffer?: number;
   freelancerResponse?: string;
   createdAt: string;
@@ -84,7 +99,7 @@ export interface AppSettings {
   companyStampDataUrl?: string;
   freelancerName: string;
   freelancerEmail?: string;
-  defaultCurrency: 'USD' | 'EUR' | 'GBP' | 'AUD' | 'CAD';
+  defaultCurrency: 'USD' | 'EUR' | 'GBP' | 'PKR' | 'AUD' | 'CAD' | 'INR';
   rateMode: 'hourly' | 'project' | 'hybrid';
   hourlyRate: number;
   currency: string;

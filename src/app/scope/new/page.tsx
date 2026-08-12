@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import { saveScope, getSettingsFromStorage } from '@/lib/storage';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,13 +18,17 @@ export default function NewScopePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [settings, setSettings] = useState<AppSettings | null>(null);
-  const [budgetType, setBudgetType] = useState<'hourly' | 'fixed_total'>('hourly');
+  const [currency, setCurrency] = useState('USD');
+  const [budgetType, setBudgetType] = useState<'fixed_total' | 'hourly'>('fixed_total');
+  const [totalBudget, setTotalBudget] = useState<number | ''>('');
+  const [hourlyRate, setHourlyRate] = useState<number | ''>('');
 
   useEffect(() => {
     const s = getSettingsFromStorage();
     if (s) {
       setSettings(s);
       setBudgetType(s.rateMode === 'project' ? 'fixed_total' : 'hourly');
+      setCurrency(s.defaultCurrency || 'USD');
     }
   }, []);
 
@@ -72,9 +77,11 @@ export default function NewScopePage() {
           freelancerApproved: null,
           clientApproved: null
         })),
+        currency,
         budgetType,
-        hourlyRate: budgetType === 'hourly' ? settings.hourlyRate : undefined,
-        totalBudget: budgetType === 'fixed_total' ? 0 : undefined,
+        totalBudget: budgetType === 'fixed_total' ? Number(totalBudget) || undefined : undefined,
+        hourlyRate: budgetType === 'hourly' ? Number(hourlyRate) || undefined : undefined,
+        changeOrders: [],
       };
 
       saveScope(newScope);
@@ -107,19 +114,65 @@ export default function NewScopePage() {
 
       <div className="glass-card rounded-3xl p-2 shadow-2xl relative">
         <div className="p-6 md:p-8 space-y-6">
-          <div className="space-y-3">
-            <Label htmlFor="budget-type" className="text-lg font-medium text-white/80 flex items-center gap-2">
-              Project Budget Type
-            </Label>
-            <select 
-              id="budget-type"
-              className="w-full md:w-1/2 h-12 px-4 bg-black/40 border border-white/10 rounded-xl text-base text-white focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
-              value={budgetType}
-              onChange={(e) => setBudgetType(e.target.value as 'hourly' | 'fixed_total')}
-            >
-              <option value="hourly">Hourly Rate (Time & Materials)</option>
-              <option value="fixed_total">Fixed Project Total</option>
-            </select>
+          <div className="glass-card p-6 mb-6">
+            <h3 className="text-lg font-semibold mb-4 text-white">Project Budget</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <Label htmlFor="currency" className="text-slate-300">Currency</Label>
+                <select
+                  id="currency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="w-full mt-1.5 bg-slate-900/50 border border-slate-700 rounded-md px-3 py-2 text-white text-sm"
+                >
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="PKR">PKR (Rs.)</option>
+                  <option value="AUD">AUD (A$)</option>
+                  <option value="CAD">CAD (C$)</option>
+                  <option value="INR">INR (₹)</option>
+                </select>
+              </div>
+              
+              <div>
+                <Label htmlFor="budgetType" className="text-slate-300">Budget Type</Label>
+                <select
+                  id="budgetType"
+                  value={budgetType}
+                  onChange={(e) => setBudgetType(e.target.value as 'fixed_total' | 'hourly')}
+                  className="w-full mt-1.5 bg-slate-900/50 border border-slate-700 rounded-md px-3 py-2 text-white text-sm"
+                >
+                  <option value="fixed_total">Fixed Total</option>
+                  <option value="hourly">Hourly Rate</option>
+                </select>
+              </div>
+              
+              <div>
+                <Label htmlFor="budgetAmount" className="text-slate-300">
+                  {budgetType === 'fixed_total' ? 'Total Budget' : 'Hourly Rate'}
+                </Label>
+                <Input
+                  id="budgetAmount"
+                  type="number"
+                  value={budgetType === 'fixed_total' ? totalBudget : hourlyRate}
+                  onChange={(e: any) => {
+                    const val = e.target.value === '' ? '' : parseFloat(e.target.value);
+                    budgetType === 'fixed_total' ? setTotalBudget(val) : setHourlyRate(val);
+                  }}
+                  placeholder={budgetType === 'fixed_total' ? 'e.g. 150000' : 'e.g. 75'}
+                  className="mt-1.5 bg-slate-900/50 border-slate-700 text-white"
+                />
+              </div>
+            </div>
+            
+            {budgetType === 'fixed_total' && totalBudget && (
+              <p className="text-sm text-emerald-400">
+                Total Budget: {currency === 'PKR' ? 'Rs. ' : currency === 'USD' ? '$' : currency + ' '}
+                {Number(totalBudget).toLocaleString()}
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">

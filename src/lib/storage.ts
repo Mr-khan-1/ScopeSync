@@ -18,6 +18,7 @@ export interface ScopeSyncData {
 const defaultSettings: AppSettings = {
   businessType: 'freelancer',
   freelancerName: 'Freelancer',
+  freelancerEmail: '',
   defaultCurrency: 'USD',
   rateMode: 'hourly',
   hourlyRate: 75,
@@ -141,5 +142,16 @@ export function getSettingsFromStorage(): AppSettings {
 export function saveSettings(settings: AppSettings): void {
   const data = getAllData();
   data.settings = settings;
+  saveData(data);
+}
+
+export function addChangeOrder(scopeId: string, changeOrder: import('./types').ChangeOrder): void {
+  const data = getAllData();
+  const scope = data.scopes.find(s => s.id === scopeId);
+  if (!scope) throw new Error('Scope not found');
+  if (scope.status !== 'locked') throw new Error('Can only add change orders to locked scopes');
+  
+  if (!scope.changeOrders) scope.changeOrders = [];
+  scope.changeOrders.push(changeOrder);
   saveData(data);
 }

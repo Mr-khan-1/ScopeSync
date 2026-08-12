@@ -6,7 +6,7 @@ describe('Scope State Transitions', () => {
   const mockScope: ScopePage = {
     id: '123',
     title: 'Test',
-    status: 'client_review',
+    status: 'client_signed',
     createdAt: new Date().toISOString(),
     lockedAt: null,
     freelancerName: 'John',
@@ -15,12 +15,14 @@ describe('Scope State Transitions', () => {
     shareToken: 'abc',
     viewCount: 0,
     budgetType: 'hourly',
+    currency: 'USD',
+    clientSignature: { signerName: 'Jane', signedAt: new Date().toISOString() },
     items: [
       { id: '1', text: 'Item 1', category: 'in-scope', freelancerApproved: true, clientApproved: true },
     ]
   };
 
-  it('allows transition to locked when all items are client approved', () => {
+  it('allows transition to locked when client has signed', () => {
     expect(canTransitionTo(mockScope, 'locked')).toBe(true);
   });
 
