@@ -310,7 +310,7 @@ export default function ScopePageViewer() {
 
       {/* Action Bar (Sticky) */}
       {scope.status === 'freelancer_review' && isFreelancer && (
-        <div className="sticky top-24 z-40 glass-card rounded-2xl p-4 flex items-center justify-between border-primary/30">
+        <div className="sticky top-24 z-40 glass-card rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-primary/30">
           <div className="flex items-center gap-3">
             <div className="text-primary font-bold">{freelancerDecided} / {totalItems}</div>
             <div className="text-sm text-white/60">items reviewed</div>
@@ -318,7 +318,7 @@ export default function ScopePageViewer() {
           <Button 
             onClick={handleFreelancerSubmit} 
             disabled={freelancerDecided < totalItems}
-            className="bg-primary hover:bg-primary/90 text-white rounded-full px-6 shadow-[0_0_20px_rgba(200,100,255,0.4)]"
+            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-full px-6 shadow-[0_0_20px_rgba(200,100,255,0.4)]"
           >
             Continue to Client Review <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
@@ -326,7 +326,7 @@ export default function ScopePageViewer() {
       )}
 
       {scope.status === 'client_review' && !isFreelancer && (
-        <div className="sticky top-24 z-40 glass-card rounded-2xl p-4 flex items-center justify-between border-emerald-500/30">
+        <div className="sticky top-24 z-40 glass-card rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-emerald-500/30">
           <div className="flex items-center gap-3">
             <div className="text-emerald-400 font-bold">{clientDecided} / {totalItems}</div>
             <div className="text-sm text-white/60">items reviewed</div>
@@ -334,7 +334,7 @@ export default function ScopePageViewer() {
           <Button 
             onClick={handleClientSubmit} 
             disabled={clientDecided < totalItems}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full px-6 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+            className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white rounded-full px-6 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
           >
             {scope.items.some(i => i.clientApproved === false) ? 'Send Revisions' : 'Approve All & Lock Scope'}
           </Button>
@@ -379,7 +379,7 @@ export default function ScopePageViewer() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
             {isFreelancer && scope.shareToken && (
               <Button variant="outline" className="flex-1 md:flex-none glass border-white/20 hover:bg-white/10 hover:text-white hover:border-white/40 transition-all rounded-full px-6 py-5" onClick={copyLink}>
                 <Share2 className="mr-2 h-4 w-4" />
@@ -627,7 +627,7 @@ export default function ScopePageViewer() {
                 <li className="text-white/40 text-sm italic py-2 font-light">No items specified</li>
               ) : (
                 inScope.map((item, idx) => (
-                  <li key={item.id || idx} className={`text-lg leading-relaxed flex items-start justify-between gap-4 text-white/90 font-light group animate-in slide-in-from-left-4 fade-in transition-all ${getItemStyle(item)}`} style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'both' }}>
+                  <li key={item.id || idx} className={`text-lg leading-relaxed flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-white/90 font-light group animate-in slide-in-from-left-4 fade-in transition-all ${getItemStyle(item)}`} style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'both' }}>
                     <div className="flex gap-4">
                       <div className="mt-2 w-2 h-2 rounded-full bg-green-400/50 shrink-0 group-hover:scale-150 group-hover:bg-green-400 transition-all duration-300" />
                       <span>{item.text}</span>
@@ -653,7 +653,7 @@ export default function ScopePageViewer() {
                   <li className="text-white/40 text-sm italic py-2 font-light">No exclusions specified</li>
                 ) : (
                   outOfScope.map((item, idx) => (
-                    <li key={item.id || idx} className={`text-base leading-relaxed flex items-start justify-between gap-3 text-white/80 font-light group animate-in slide-in-from-left-4 fade-in transition-all ${getItemStyle(item)}`} style={{ animationDelay: `${(idx + inScope.length) * 100}ms`, animationFillMode: 'both' }}>
+                    <li key={item.id || idx} className={`text-base leading-relaxed flex flex-col sm:flex-row sm:items-start justify-between gap-3 text-white/80 font-light group animate-in slide-in-from-left-4 fade-in transition-all ${getItemStyle(item)}`} style={{ animationDelay: `${(idx + inScope.length) * 100}ms`, animationFillMode: 'both' }}>
                       <div className="flex gap-3">
                         <div className="mt-2 w-1.5 h-1.5 rounded-full bg-red-400/50 shrink-0 group-hover:scale-150 group-hover:bg-red-400 transition-all duration-300" />
                         <span>{item.text}</span>
@@ -678,7 +678,7 @@ export default function ScopePageViewer() {
                   <li className="text-white/40 text-sm italic py-2 font-light">No assumptions specified</li>
                 ) : (
                   assumptions.map((item, idx) => (
-                    <li key={item.id || idx} className={`text-base leading-relaxed flex items-start justify-between gap-3 text-white/80 font-light group animate-in slide-in-from-left-4 fade-in transition-all ${getItemStyle(item)}`} style={{ animationDelay: `${(idx + inScope.length + outOfScope.length) * 100}ms`, animationFillMode: 'both' }}>
+                    <li key={item.id || idx} className={`text-base leading-relaxed flex flex-col sm:flex-row sm:items-start justify-between gap-3 text-white/80 font-light group animate-in slide-in-from-left-4 fade-in transition-all ${getItemStyle(item)}`} style={{ animationDelay: `${(idx + inScope.length + outOfScope.length) * 100}ms`, animationFillMode: 'both' }}>
                       <div className="flex gap-3">
                         <div className="mt-2 w-1.5 h-1.5 rounded-full bg-orange-400/50 shrink-0 group-hover:scale-150 group-hover:bg-orange-400 transition-all duration-300" />
                         <span>{item.text}</span>

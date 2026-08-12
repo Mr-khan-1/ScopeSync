@@ -24,10 +24,10 @@ export default function RootLayout({
         <div className="fixed top-4 left-0 right-0 z-50 px-4 pointer-events-none animate-in fade-in slide-in-from-top-8 duration-700">
           <header className="pointer-events-auto mx-auto max-w-5xl glass rounded-full px-6 py-3 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-white hover:opacity-80 transition-opacity">
-              <div className="bg-primary p-1.5 rounded-full shadow-[0_0_15px_rgba(200,100,255,0.8)]">
+              <div className="bg-primary p-1.5 rounded-full shadow-[0_0_15px_rgba(200,100,255,0.8)] shrink-0">
                 <Sparkles className="w-4 h-4 text-primary-foreground" />
               </div>
-              Scope<span className="text-primary font-light">Sync</span>
+              <span className="hidden sm:inline">Scope</span><span className="hidden sm:inline text-primary font-light">Sync</span>
             </Link>
             
             <nav className="flex items-center gap-1 sm:gap-2">

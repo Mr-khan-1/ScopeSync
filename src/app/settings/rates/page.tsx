@@ -84,17 +84,17 @@ export default function RatesSettingsPage() {
     <div className="space-y-12 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-primary/10 blur-[150px] rounded-full pointer-events-none -z-10 mix-blend-screen opacity-50" />
       
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => router.push('/')} className="rounded-full border-white/10 hover:bg-white/10">
+          <Button variant="outline" size="icon" onClick={() => router.push('/')} className="shrink-0 rounded-full border-white/10 hover:bg-white/10">
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Rate Configuration</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">Rate Configuration</h1>
             <p className="text-white/50 text-sm">Configure your billing rates and market positioning.</p>
           </div>
         </div>
-        <Button onClick={handleSave} className="bg-primary hover:bg-primary/90 text-white rounded-full px-6">
+        <Button onClick={handleSave} className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white rounded-full px-6">
           <Save className="w-4 h-4 mr-2" /> Save Settings
         </Button>
       </div>
