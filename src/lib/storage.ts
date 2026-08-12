@@ -16,6 +16,7 @@ export interface ScopeSyncData {
 }
 
 const defaultSettings: AppSettings = {
+  businessType: 'freelancer',
   freelancerName: 'Freelancer',
   defaultCurrency: 'USD',
   rateMode: 'hourly',

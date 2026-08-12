@@ -1,8 +1,7 @@
 import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { estimateTaskCost, getMarketBenchmark } from '@/lib/rate-engine';
-
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY || '');
+import { checkRateLimit } from '@/lib/rate-limit';
 
 const changeResponseSchema: Schema = {
   type: SchemaType.OBJECT,
@@ -11,18 +10,30 @@ const changeResponseSchema: Schema = {
     reasoning: { type: SchemaType.STRING },
     timelineImpact: { type: SchemaType.STRING },
     suggestedReply: { type: SchemaType.STRING },
-    lockedItemReference: { type: SchemaType.STRING, nullable: true }
+    lockedItemReference: { type: SchemaType.STRING, nullable: true },
+    budgetImpact: { type: SchemaType.STRING, nullable: true }
   },
   required: ['verdict', 'reasoning', 'timelineImpact', 'suggestedReply']
 };
 
 export async function POST(req: NextRequest) {
   try {
-    const { requestText, scope, settings, clientName, clientEmail } = await req.json();
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
+    const { requestText, scope, settings, clientName, clientEmail, apiKey } = await req.json();
+
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Add your free Gemini API key in Settings to use AI features.' }, { status: 400 });
+    }
 
     if (!requestText || !scope || !settings) {
       return NextResponse.json({ error: 'requestText, scope, and settings are required' }, { status: 400 });
     }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     if (scope.status !== 'locked') {
       return NextResponse.json({ error: 'Change requests can only be submitted for locked scopes.' }, { status: 400 });
@@ -36,9 +47,13 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    const prompt = `
+const prompt = `
 You are an expert project manager and scope analyst.
 A client has submitted a change request for a locked contract.
+
+Project Budget Context:
+- Budget Type: ${scope.budgetType}
+- ${scope.budgetType === 'fixed_total' ? `Total Budget: $${scope.totalBudget}` : `Hourly Rate: $${scope.hourlyRate}/hr`}
 
 Original Scope Items:
 ${JSON.stringify(scope.items, null, 2)}
@@ -52,6 +67,7 @@ Analyze the request and determine:
 3. What is the estimated timeline impact? (e.g. "+2 days", "None")
 4. Write a professional, polite reply template for the freelancer to send to the client. The tone should be firm but friendly, setting clear boundaries.
 5. If it's in-scope, provide the exact text of the locked item that includes this (lockedItemReference). Otherwise null.
+6. If it's out-of-scope, state how the suggested fee compares to the project's existing budget (budgetImpact). E.g. "This would add approximately 12% to the original project cost." Otherwise null.
 `;
 
     const result = await model.generateContent(prompt);

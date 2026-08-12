@@ -1,8 +1,7 @@
 import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { AIScopeSchema } from '@/lib/schemas';
-
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY || '');
+import { checkRateLimit } from '@/lib/rate-limit';
 
 const scopeResponseSchema: Schema = {
   type: SchemaType.OBJECT,
@@ -27,11 +26,22 @@ const scopeResponseSchema: Schema = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { text } = await req.json();
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
+    const { text, apiKey } = await req.json();
+
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Add your free Gemini API key in Settings to use AI features.' }, { status: 400 });
+    }
 
     if (!text) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 });
     }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-3.5-flash',

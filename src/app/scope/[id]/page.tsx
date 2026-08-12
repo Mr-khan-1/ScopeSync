@@ -9,8 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CheckCircle2, XCircle, HelpCircle, Calendar, Clock, Share2, FileText, ArrowRight, Check, X, Send } from 'lucide-react';
+import { CheckCircle2, XCircle, HelpCircle, Calendar, Clock, Share2, FileText, ArrowRight, Check, X, Send, DollarSign, Download } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { AppSettings } from '@/lib/types';
 import { toast } from 'sonner';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { AgreementPDF } from '@/components/AgreementPDF';
 
 export default function ScopePageViewer() {
   const params = useParams();
@@ -26,6 +30,11 @@ export default function ScopePageViewer() {
   const [crName, setCrName] = useState('');
   const [crEmail, setCrEmail] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+  
+  // Signature State
+  const [showSignPanel, setShowSignPanel] = useState(false);
+  const [signerName, setSignerName] = useState('');
 
   useEffect(() => {
     if (typeof params.id === 'string') {
@@ -48,6 +57,7 @@ export default function ScopePageViewer() {
         }
       }
     }
+    setSettings(getSettingsFromStorage());
     setLoading(false);
   }, [params.id]);
 
@@ -105,14 +115,31 @@ export default function ScopePageViewer() {
         toast.error(err.message);
       }
     } else {
-      try {
-        const updated = lockScope(scope);
-        saveScope(updated);
-        setScope(updated);
-        toast.success('Scope Locked! Work can now begin.');
-      } catch (err: any) {
-        toast.error(err.message || 'Please approve all items first.');
-      }
+      setShowSignPanel(true);
+    }
+  };
+
+  const confirmSignature = () => {
+    if (!signerName.trim()) {
+      toast.error('Please type your name to sign.');
+      return;
+    }
+    
+    try {
+      const signature = {
+        signerName: signerName.trim(),
+        signedAt: new Date().toISOString(),
+        type: settings?.businessType || 'freelancer',
+        stampDataUrl: settings?.businessType === 'agency' ? settings.companyStampDataUrl : undefined
+      };
+      
+      const updated = lockScope(scope, signature as any);
+      saveScope(updated);
+      setScope(updated);
+      setShowSignPanel(false);
+      toast.success('Scope Locked! Work can now begin.');
+    } catch (err: any) {
+      toast.error(err.message || 'Please approve all items first.');
     }
   };
 
@@ -132,9 +159,10 @@ export default function ScopePageViewer() {
         body: JSON.stringify({
           requestText: crText,
           scope,
-          settings,
+          settings: settings || getSettingsFromStorage(),
           clientName: crName,
-          clientEmail: crEmail
+          clientEmail: crEmail,
+          apiKey: settings?.geminiApiKey
         })
       });
       
@@ -182,6 +210,27 @@ export default function ScopePageViewer() {
     if (scope.status === 'freelancer_review' && isFreelancer) {
       return (
         <div className="flex items-center gap-2 ml-4 shrink-0">
+          {scope.budgetType === 'fixed_total' && (
+            <div className="flex items-center mr-4">
+              <Label htmlFor={`price-${item.id}`} className="sr-only">Price</Label>
+              <span className="text-white/50 text-sm mr-2">$</span>
+              <Input
+                id={`price-${item.id}`}
+                type="number"
+                placeholder="Price"
+                className="w-24 h-8 text-sm bg-black/40 border-white/10 text-right"
+                value={item.estimatedPrice || ''}
+                onChange={(e) => {
+                  const updatedItems = scope.items.map(i => 
+                    i.id === item.id ? { ...i, estimatedPrice: parseFloat(e.target.value) || 0 } : i
+                  );
+                  const updated = { ...scope, items: updatedItems };
+                  setScope(updated);
+                  saveScope(updated);
+                }}
+              />
+            </div>
+          )}
           <button 
             onClick={() => handleFreelancerApproval(item.id, true)}
             className={`p-1.5 rounded-full transition-colors ${item.freelancerApproved === true ? 'bg-green-500 text-white' : 'bg-white/10 text-white/40 hover:text-green-400 hover:bg-green-500/20'}`}
@@ -319,10 +368,19 @@ export default function ScopePageViewer() {
               </Button>
             )}
             {scope.status === 'locked' && (
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger render={<Button variant="outline" className="flex-1 md:flex-none bg-primary/20 text-primary border-primary/30 hover:bg-primary/30 hover:text-white transition-all rounded-full px-6 py-5" />}>
-                Request a Change
-              </DialogTrigger>
+              <>
+                <PDFDownloadLink document={<AgreementPDF scope={scope} />} fileName={`ScopeSync_Agreement_${scope.id}.pdf`}>
+                  {({ loading: pdfLoading }: any) => (
+                    <Button variant="outline" className="flex-1 md:flex-none bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all rounded-full px-6 py-5" disabled={pdfLoading}>
+                      <Download className="mr-2 h-4 w-4" />
+                      {pdfLoading ? 'Generating PDF...' : 'Download PDF'}
+                    </Button>
+                  )}
+                </PDFDownloadLink>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger render={<Button variant="outline" className="flex-1 md:flex-none bg-primary/20 text-primary border-primary/30 hover:bg-primary/30 hover:text-white transition-all rounded-full px-6 py-5" />}>
+                  Request a Change
+                </DialogTrigger>
                 <DialogContent className="bg-card/40 backdrop-blur-xl border-white/10 sm:max-w-[500px]">
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">Request a Scope Change</DialogTitle>
@@ -367,6 +425,7 @@ export default function ScopePageViewer() {
                   </div>
                 </DialogContent>
               </Dialog>
+              </>
             )}
           </div>
         </div>
@@ -397,6 +456,57 @@ export default function ScopePageViewer() {
               </div>
             </div>
           )}
+          {scope.budgetType && (
+            <div className="glass-card bg-black/20 rounded-3xl p-6 flex items-start gap-5 group">
+              <div className="p-3 bg-primary/10 rounded-2xl shrink-0 group-hover:scale-110 group-hover:bg-primary/20 transition-all shadow-inner">
+                <DollarSign className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white/80 text-sm tracking-wide uppercase">Project Budget</h3>
+                <p className="text-lg text-white mt-1 leading-snug font-light">
+                  {scope.budgetType === 'hourly' ? `$${scope.hourlyRate}/hr` : `Fixed Total`}
+                </p>
+                {scope.budgetType === 'fixed_total' && scope.items.some(i => i.estimatedPrice) && (
+                  <p className="text-sm text-white/50 mt-1">
+                    Total: ${scope.items.reduce((sum, i) => sum + (i.estimatedPrice || 0), 0)}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {showSignPanel && (
+        <div className="glass-card rounded-[2rem] p-8 border-primary/30 mt-8 mb-8 space-y-6">
+          <h2 className="text-2xl font-bold">Sign this agreement</h2>
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="flex-1 space-y-4">
+              <Label htmlFor="signature" className="text-white/80">Type your full name to sign</Label>
+              <Input 
+                id="signature"
+                className="bg-black/40 border-white/10 text-xl py-6"
+                placeholder="John Doe"
+                value={signerName}
+                onChange={(e) => setSignerName(e.target.value)}
+              />
+              <p className="text-sm text-white/50 italic">
+                This is an informal agreement record for tracking purposes, not a certified legal e-signature.
+              </p>
+              <div className="flex gap-4">
+                <Button onClick={() => setShowSignPanel(false)} variant="outline" className="border-white/10 hover:bg-white/10">Cancel</Button>
+                <Button onClick={confirmSignature} className="bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(200,100,255,0.4)]">
+                  Sign & Lock Agreement
+                </Button>
+              </div>
+            </div>
+            {settings?.businessType === 'agency' && settings?.companyStampDataUrl && (
+              <div className="shrink-0 p-4 bg-white/5 rounded-xl border border-white/10 flex flex-col items-center gap-2">
+                <p className="text-xs text-white/50 uppercase tracking-wider">Agency Stamp</p>
+                <img src={settings.companyStampDataUrl} alt="Company Stamp" className="h-24 w-auto object-contain" />
+              </div>
+            )}
+          </div>
         </div>
       )}
 

@@ -7,8 +7,8 @@ export const AIScopeSchema = z.object({
     text: z.string(),
     category: z.enum(['in-scope', 'out-of-scope', 'assumption'])
   })),
-  timeline: z.string().optional(),
-  revisionPolicy: z.string().optional(),
+  timeline: z.string().nullable().optional(),
+  revisionPolicy: z.string().nullable().optional(),
 });
 
 export type AIScope = z.infer<typeof AIScopeSchema>;
@@ -28,8 +28,8 @@ export const ScopeSchema = z.object({
   clientName: z.string().optional(),
   freelancerName: z.string().optional(),
   items: z.array(ScopeItemSchema),
-  timeline: z.string().optional(),
-  revisionPolicy: z.string().optional(),
+  timeline: z.string().nullable().optional(),
+  revisionPolicy: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

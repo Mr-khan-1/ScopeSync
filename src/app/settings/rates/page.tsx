@@ -7,6 +7,7 @@ import { AppSettings, CustomRate } from '@/lib/types';
 import { getMarketBenchmark } from '@/lib/rate-engine';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ArrowLeft, Save, TrendingUp, AlertTriangle, CheckCircle, PlusCircle, Trash2, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -90,6 +91,86 @@ export default function RatesSettingsPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
+        {/* API & Identity Card */}
+        <div className="glass-card rounded-[2rem] p-8 border-white/10 space-y-6 md:col-span-2">
+          <h2 className="text-xl font-semibold border-b border-white/10 pb-4">API & Identity</h2>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="gemini-key" className="text-sm font-medium text-white/80">Gemini API Key</Label>
+              <div className="flex gap-2">
+                <Input 
+                  id="gemini-key"
+                  type="password"
+                  placeholder="AI Studio API Key"
+                  className="bg-black/40 border-white/10 font-mono" 
+                  value={settings.geminiApiKey || ''}
+                  onChange={(e) => setSettings({...settings, geminiApiKey: e.target.value})}
+                />
+                <Button variant="outline" className="border-white/10 shrink-0" onClick={() => window.open('https://aistudio.google.com/', '_blank')}>
+                  Get Free Key
+                </Button>
+              </div>
+              <p className="text-xs text-white/50">Stored securely in your browser. Required for AI features.</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="business-type" className="text-sm font-medium text-white/80">Business Type</Label>
+              <select 
+                id="business-type"
+                className="w-full h-10 px-3 bg-black/40 border border-white/10 rounded-md text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                value={settings.businessType || 'freelancer'}
+                onChange={(e) => setSettings({...settings, businessType: e.target.value as 'freelancer' | 'agency'})}
+              >
+                <option value="freelancer">Freelancer</option>
+                <option value="agency">Agency</option>
+              </select>
+            </div>
+            
+            {settings.businessType === 'agency' && (
+              <div className="space-y-2">
+                <Label htmlFor="company-name" className="text-sm font-medium text-white/80">Company Name</Label>
+                <Input 
+                  id="company-name"
+                  className="bg-black/40 border-white/10" 
+                  value={settings.companyName || ''}
+                  onChange={(e) => setSettings({...settings, companyName: e.target.value})}
+                />
+              </div>
+            )}
+            
+            {settings.businessType === 'agency' && (
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="company-stamp" className="text-sm font-medium text-white/80">Company Stamp / Logo (Optional)</Label>
+                <div className="flex items-center gap-4">
+                  {settings.companyStampDataUrl && (
+                    <img src={settings.companyStampDataUrl} alt="Company Stamp Preview" className="h-12 w-auto object-contain bg-white/5 rounded p-1" />
+                  )}
+                  <Input 
+                    id="company-stamp"
+                    type="file"
+                    accept="image/*"
+                    className="bg-black/40 border-white/10" 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setSettings({...settings, companyStampDataUrl: reader.result as string});
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  {settings.companyStampDataUrl && (
+                    <Button variant="outline" size="sm" onClick={() => setSettings({...settings, companyStampDataUrl: undefined})}>Clear</Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Base Rate Card */}
         <div className="glass-card rounded-[2rem] p-8 border-white/10 space-y-6">
           <h2 className="text-xl font-semibold border-b border-white/10 pb-4">Base Rate & Profile</h2>

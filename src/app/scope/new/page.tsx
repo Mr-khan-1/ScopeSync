@@ -1,24 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
-import { saveScope } from '@/lib/storage';
+import { saveScope, getSettingsFromStorage } from '@/lib/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
+import { AppSettings } from '@/lib/types';
 
 export default function NewScopePage() {
   const router = useRouter();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [budgetType, setBudgetType] = useState<'hourly' | 'fixed_total'>('hourly');
+
+  useEffect(() => {
+    const s = getSettingsFromStorage();
+    if (s) {
+      setSettings(s);
+      setBudgetType(s.rateMode === 'project' ? 'fixed_total' : 'hourly');
+    }
+  }, []);
 
   const handleExtract = async () => {
     if (!text.trim()) {
       setError('Please paste a project brief first.');
+      return;
+    }
+    
+    if (!settings?.geminiApiKey) {
+      setError('Please add your free Gemini API key in Settings before extracting a scope.');
       return;
     }
 
@@ -29,7 +45,7 @@ export default function NewScopePage() {
       const res = await fetch('/api/extract-scope', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, apiKey: settings.geminiApiKey }),
       });
 
       if (!res.ok) {
@@ -55,7 +71,10 @@ export default function NewScopePage() {
           id: uuidv4(),
           freelancerApproved: null,
           clientApproved: null
-        }))
+        })),
+        budgetType,
+        hourlyRate: budgetType === 'hourly' ? settings.hourlyRate : undefined,
+        totalBudget: budgetType === 'fixed_total' ? 0 : undefined,
       };
 
       saveScope(newScope);
@@ -88,6 +107,21 @@ export default function NewScopePage() {
 
       <div className="glass-card rounded-3xl p-2 shadow-2xl relative">
         <div className="p-6 md:p-8 space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="budget-type" className="text-lg font-medium text-white/80 flex items-center gap-2">
+              Project Budget Type
+            </Label>
+            <select 
+              id="budget-type"
+              className="w-full md:w-1/2 h-12 px-4 bg-black/40 border border-white/10 rounded-xl text-base text-white focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+              value={budgetType}
+              onChange={(e) => setBudgetType(e.target.value as 'hourly' | 'fixed_total')}
+            >
+              <option value="hourly">Hourly Rate (Time & Materials)</option>
+              <option value="fixed_total">Fixed Project Total</option>
+            </select>
+          </div>
+
           <div className="space-y-3">
             <Label htmlFor="brief" className="text-lg font-medium text-white/80 flex items-center gap-2">
               Project Brief or Communication

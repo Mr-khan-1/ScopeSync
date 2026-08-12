@@ -46,7 +46,7 @@ export function transitionScope(scope: ScopePage, targetStatus: ScopePage['statu
   return updatedScope;
 }
 
-export function lockScope(scope: ScopePage): ScopePage {
+export function lockScope(scope: ScopePage, signature: ScopePage['signature']): ScopePage {
   if (!canTransitionTo(scope, 'locked')) {
     throw new Error('Cannot lock scope: pending client approvals.');
   }
@@ -55,6 +55,7 @@ export function lockScope(scope: ScopePage): ScopePage {
     ...scope,
     status: 'locked',
     lockedAt: new Date().toISOString(),
+    signature,
     // Remove any items the client rejected, though they shouldn't exist if canTransitionTo passed
     items: scope.items.filter(item => item.clientApproved === true)
   };

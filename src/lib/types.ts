@@ -4,14 +4,15 @@ export interface ScopeItem {
   category: 'in-scope' | 'out-of-scope' | 'assumption';
   freelancerApproved: boolean | null;
   clientApproved: boolean | null;
+  estimatedPrice?: number;
 }
 
 export interface ScopePage {
   id: string;
   title: string;
   items: ScopeItem[];
-  timeline?: string;
-  revisionPolicy?: string;
+  timeline?: string | null;
+  revisionPolicy?: string | null;
   createdAt: string;
   status: 'draft' | 'freelancer_review' | 'client_review' | 'locked' | 'archived';
   lockedAt: string | null;
@@ -22,6 +23,15 @@ export interface ScopePage {
   shareToken: string;
   viewCount: number;
   lastViewedAt?: string;
+  budgetType: 'hourly' | 'fixed_total';
+  totalBudget?: number;
+  hourlyRate?: number;
+  signature?: {
+    signerName: string;
+    signedAt: string;
+    type: 'freelancer' | 'agency';
+    stampDataUrl?: string;
+  };
 }
 
 export interface ChangeRequest {
@@ -41,6 +51,7 @@ export interface ChangeRequest {
     suggestedReply: string;
     lockedItemReference?: string | null;
     marketBenchmark?: { low: number; median: number; high: number };
+    budgetImpact?: string;
   };
   status: 'pending' | 'approved' | 'declined' | 'countered';
   freelancerCounterOffer?: number;
@@ -67,6 +78,10 @@ export interface CustomRate {
 }
 
 export interface AppSettings {
+  geminiApiKey?: string;
+  businessType: 'freelancer' | 'agency';
+  companyName?: string;
+  companyStampDataUrl?: string;
   freelancerName: string;
   freelancerEmail?: string;
   defaultCurrency: 'USD' | 'EUR' | 'GBP' | 'AUD' | 'CAD';
