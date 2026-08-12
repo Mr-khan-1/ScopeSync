@@ -82,7 +82,7 @@ export default function RatesSettingsPage() {
 
   return (
     <div className="space-y-12 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 relative">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-primary/10 blur-[150px] rounded-full pointer-events-none -z-10 mix-blend-screen opacity-50" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] md:w-[800px] h-[300px] bg-primary/10 blur-[100px] md:blur-[150px] rounded-full pointer-events-none -z-10 mix-blend-screen opacity-50" />
       
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
