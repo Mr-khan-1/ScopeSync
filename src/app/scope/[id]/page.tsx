@@ -249,13 +249,6 @@ export default function ScopePageViewer() {
     if (scope.status === 'freelancer_review' && isFreelancer) {
       return (
         <div className="flex items-center gap-2 ml-4 shrink-0">
-
-          <button 
-            onClick={() => handleFreelancerApproval(item.id, true)}
-            className={`p-1.5 rounded-full transition-all ${item.freelancerApproved === true ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-green-500/10 text-green-500/40 hover:text-green-400 hover:bg-green-500/20 hover:scale-110'}`}
-          >
-            <Check className="w-4 h-4" />
-          </button>
           <button 
             onClick={() => handleFreelancerApproval(item.id, false)}
             className={`p-1.5 rounded-full transition-all ${item.freelancerApproved === false ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-500/40 hover:text-red-400 hover:bg-red-500/20 hover:scale-110'}`}
@@ -270,12 +263,6 @@ export default function ScopePageViewer() {
       return (
         <div className="flex flex-col gap-3 ml-4 shrink-0 items-end">
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => handleClientApproval(item.id, true)}
-              className={`p-1.5 rounded-full transition-all ${item.clientApproved === true ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-green-500/10 text-green-500/40 hover:text-green-400 hover:bg-green-500/20 hover:scale-110'}`}
-            >
-              <Check className="w-4 h-4" />
-            </button>
             <button 
               onClick={() => handleClientApproval(item.id, false)}
               className={`p-1.5 rounded-full transition-all ${item.clientApproved === false ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-500/40 hover:text-red-400 hover:bg-red-500/20 hover:scale-110'}`}
@@ -318,13 +305,6 @@ export default function ScopePageViewer() {
           title="Approve All"
         >
           <Check className="w-5 h-5" />
-        </button>
-        <button 
-          onClick={() => handleBulkApproval(category, false)}
-          className={`p-2 rounded-full transition-all ${allRejected ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white hover:scale-110'}`}
-          title="Reject All"
-        >
-          <X className="w-5 h-5" />
         </button>
       </div>
     );
