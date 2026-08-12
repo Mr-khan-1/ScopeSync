@@ -65,7 +65,16 @@ export default function RatesSettingsPage() {
     setSettings({ ...settings, customRates: settings.customRates.filter(r => r.id !== id) });
   };
 
-  const benchmark = getMarketBenchmark(settings.skillCategory, settings.experienceLevel, settings.region, settings.currency);
+  const benchmark = getMarketBenchmark(settings.skillCategory, settings.experienceLevel, settings.region, settings.defaultCurrency);
+  
+  const getCurrencySymbol = (currencyCode?: string) => {
+    const code = currencyCode || 'USD';
+    const symbols: Record<string, string> = {
+      USD: '$', EUR: '€', GBP: '£', PKR: 'Rs. ', AUD: 'A$', CAD: 'C$', INR: '₹'
+    };
+    return symbols[code] || '$';
+  };
+  const currencySymbol = getCurrencySymbol(settings.defaultCurrency);
   
   let rateStatus = 'competitive';
   if (settings.hourlyRate < benchmark.marketLow) rateStatus = 'below';
@@ -197,7 +206,7 @@ export default function RatesSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80">Your Hourly Rate ($)</label>
+              <label className="text-sm font-medium text-white/80">Your Hourly Rate ({currencySymbol})</label>
               <Input 
                 type="number"
                 className="bg-black/40 border-white/10 font-mono" 
@@ -279,16 +288,16 @@ export default function RatesSettingsPage() {
           <div className="flex-1 flex flex-col justify-center space-y-8 mt-4">
             <div className="flex justify-between items-end border-b border-white/5 pb-2">
               <div className="text-white/50 text-sm">Market Low (25th %)</div>
-              <div className="font-mono text-white/80">${benchmark.marketLow}/hr</div>
+              <div className="font-mono text-white/80">{currencySymbol}{benchmark.marketLow}/hr</div>
             </div>
             <div className="flex justify-between items-end border-b border-primary/20 pb-2 relative">
               <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-md"></div>
               <div className="text-primary font-medium text-lg">Market Median</div>
-              <div className="font-mono text-primary font-bold text-xl">${benchmark.marketMedian}/hr</div>
+              <div className="font-mono text-primary font-bold text-xl">{currencySymbol}{benchmark.marketMedian}/hr</div>
             </div>
             <div className="flex justify-between items-end border-b border-white/5 pb-2">
               <div className="text-white/50 text-sm">Market High (75th %)</div>
-              <div className="font-mono text-white/80">${benchmark.marketHigh}/hr</div>
+              <div className="font-mono text-white/80">{currencySymbol}{benchmark.marketHigh}/hr</div>
             </div>
 
             <div className={`p-4 rounded-2xl border flex gap-3 ${
@@ -301,7 +310,7 @@ export default function RatesSettingsPage() {
               {rateStatus === 'premium' && <TrendingUp className="w-5 h-5 shrink-0 text-indigo-400" />}
               <div>
                 <strong className="block mb-1">
-                  Your Rate: ${settings.hourlyRate}/hr
+                  Your Rate: {currencySymbol}{settings.hourlyRate}/hr
                 </strong>
                 <span className="text-sm opacity-80 leading-snug block">
                   {rateStatus === 'below' ? 'Your rate is below the market median. Consider raising it to match your experience.' :
@@ -347,7 +356,7 @@ export default function RatesSettingsPage() {
                     <td className="px-6 py-4 font-medium text-white">{rate.taskType}</td>
                     <td className="px-6 py-4 text-white/60 capitalize">{rate.rateType}</td>
                     <td className="px-6 py-4 font-mono text-white/80">
-                      ${rate.rateValue}{rate.rateType === 'hourly' ? `/hr (est. ${rate.estimatedHours}h)` : ''}
+                      {currencySymbol}{rate.rateValue}{rate.rateType === 'hourly' ? `/hr (est. ${rate.estimatedHours}h)` : ''}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button onClick={() => handleDeleteRate(rate.id)} className="text-white/30 hover:text-red-400 p-2 rounded-full hover:bg-red-500/10 transition-colors">
@@ -397,7 +406,7 @@ export default function RatesSettingsPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/80">Amount ($)</label>
+                  <label className="text-sm font-medium text-white/80">Amount ({currencySymbol})</label>
                   <Input 
                     type="number" 
                     className="bg-black/40 border-white/10"

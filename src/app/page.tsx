@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getScopes, deleteScope, getAllRequests } from '@/lib/storage';
-import { ScopePage, ChangeRequest } from '@/lib/types';
+import { getScopes, deleteScope, getAllRequests, getSettingsFromStorage } from '@/lib/storage';
+import { ScopePage, ChangeRequest, AppSettings } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowUpRight, PlusCircle, Trash2, ShieldCheck, Activity, CalendarDays, Inbox } from 'lucide-react';
@@ -11,11 +11,13 @@ import { toast } from 'sonner';
 export default function Dashboard() {
   const [scopes, setScopes] = useState<ScopePage[]>([]);
   const [requests, setRequests] = useState<ChangeRequest[]>([]);
+  const [settings, setSettings] = useState<AppSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setScopes(getScopes().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     setRequests(getAllRequests());
+    setSettings(getSettingsFromStorage());
     setLoading(false);
   }, []);
 
@@ -50,6 +52,15 @@ export default function Dashboard() {
 
   if (loading) return null;
 
+  const getCurrencySymbol = (currencyCode?: string) => {
+    const code = currencyCode || 'USD';
+    const symbols: Record<string, string> = {
+      USD: '$', EUR: '€', GBP: '£', PKR: 'Rs. ', AUD: 'A$', CAD: 'C$', INR: '₹'
+    };
+    return symbols[code] || '$';
+  };
+  const currencySymbol = getCurrencySymbol(settings?.defaultCurrency);
+
   const drafts = scopes.filter(s => s.status === 'freelancer_review' || s.status === 'draft');
   const pendingClient = scopes.filter(s => s.status === 'client_review');
   const locked = scopes.filter(s => s.status === 'locked');
@@ -78,10 +89,10 @@ export default function Dashboard() {
             </div>
             <h2 className="text-xs font-bold text-white/70 uppercase tracking-widest">Scope Debt Prevented</h2>
           </div>
-          <div className="text-5xl font-bold text-white mb-3 tracking-tighter drop-shadow-md">${allTime.toLocaleString()}</div>
+          <div className="text-5xl font-bold text-white mb-3 tracking-tighter drop-shadow-md">{currencySymbol}{allTime.toLocaleString()}</div>
           <div className="flex items-center gap-2 text-sm font-medium text-green-400 bg-green-500/10 border border-green-500/20 w-fit px-3 py-1.5 rounded-full shadow-inner">
             <Activity className="w-3.5 h-3.5" />
-            <span>+${thisMonth.toLocaleString()} this month</span>
+            <span>+{currencySymbol}{thisMonth.toLocaleString()} this month</span>
           </div>
         </div>
       </section>

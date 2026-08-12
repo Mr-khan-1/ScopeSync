@@ -580,28 +580,7 @@ export default function ScopePageViewer() {
         </div>
       )}
 
-      {scope.status === 'locked' && (
-        <div className="glass-card p-4 mt-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileText className="w-5 h-5 text-blue-400" />
-            <div>
-              <p className="text-sm font-medium text-white">Agreement PDF</p>
-              <p className="text-xs text-slate-400">Signed by both parties</p>
-            </div>
-          </div>
-          <PDFDownloadLink
-            document={<AgreementPDF scope={scope} />}
-            fileName={`${scope.title.replace(/\s+/g, '_')}_Agreement.pdf`}
-          >
-            {({ loading }: { loading: boolean }) => (
-              <Button disabled={loading} className="bg-emerald-600 hover:bg-emerald-700">
-                <Download className="w-4 h-4 mr-2" />
-                {loading ? 'Generating...' : 'Download PDF'}
-              </Button>
-            )}
-          </PDFDownloadLink>
-        </div>
-      )}
+
 
       {(scope.changeOrders && scope.changeOrders.length > 0) && (
         <div className="glass-card p-6 mt-6 border-l-4 border-l-amber-500">

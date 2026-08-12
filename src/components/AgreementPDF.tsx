@@ -74,7 +74,7 @@ export const AgreementPDF = ({ scope }: { scope: ScopePage }) => {
   const assumptions = scope.items.filter(i => i.category === 'assumption');
   const isFixed = scope.budgetType === 'fixed_total';
   const originalTotal = isFixed 
-    ? scope.items.reduce((sum, i) => sum + (i.estimatedPrice || 0), 0) 
+    ? (scope.totalBudget || scope.items.reduce((sum, i) => sum + (i.estimatedPrice || 0), 0))
     : 0;
   const changeOrders = scope.changeOrders || [];
   const changeOrderTotal = changeOrders.reduce((sum, co) => sum + co.approvedPrice, 0);
@@ -91,6 +91,7 @@ export const AgreementPDF = ({ scope }: { scope: ScopePage }) => {
             <View>
               <Text style={styles.brand}>ScopeSync Agreement</Text>
               <Text style={styles.docTitle}>{scope.title}</Text>
+              <Text style={{ fontSize: 9, color: '#64748b', marginTop: 4 }}>STATEMENT OF WORK & PROJECT SCOPE</Text>
             </View>
           </View>
           <View style={styles.metaGrid}>
@@ -112,6 +113,10 @@ export const AgreementPDF = ({ scope }: { scope: ScopePage }) => {
             </View>
           </View>
         </View>
+
+        <Text style={{ fontSize: 9.5, color: '#475569', marginBottom: 16, lineHeight: 1.5 }}>
+          This Statement of Work ("SOW") is made effective as of the date signed below, by and between the Client ({scope.clientName}) and the {freelancerLabel} ({scope.freelancerName}). The parties agree to the following scope of services, deliverables, and terms.
+        </Text>
 
         {(scope.timeline || scope.revisionPolicy) && (
           <View style={styles.infoBox}>

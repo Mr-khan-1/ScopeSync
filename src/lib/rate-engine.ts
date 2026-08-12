@@ -41,11 +41,23 @@ export function getMarketBenchmark(
   const level = category[experienceLevel] || category['mid'];
   const regionData = level[region] || level['remote-global'];
   
+  const CURRENCY_MULTIPLIERS: Record<string, number> = {
+    'USD': 1.0,
+    'EUR': 0.92,
+    'GBP': 0.79,
+    'PKR': 278.5,
+    'AUD': 1.53,
+    'CAD': 1.36,
+    'INR': 83.3,
+  };
+  
+  const multiplier = CURRENCY_MULTIPLIERS[currency] || 1.0;
+  
   return {
     taskType: skillCategory,
-    marketLow: regionData.low,
-    marketMedian: regionData.median,
-    marketHigh: regionData.high,
+    marketLow: Math.round(regionData.low * multiplier),
+    marketMedian: Math.round(regionData.median * multiplier),
+    marketHigh: Math.round(regionData.high * multiplier),
     region,
     experienceLevel,
     currency,
@@ -84,7 +96,7 @@ export function estimateTaskCost(
     }
   }
   
-  const benchmark = getMarketBenchmark(settings.skillCategory, settings.experienceLevel, settings.region, settings.currency);
+  const benchmark = getMarketBenchmark(settings.skillCategory, settings.experienceLevel, settings.region, settings.defaultCurrency);
   const effectiveRate = settings.hourlyRate || benchmark.marketMedian;
   
   const clampedRate = Math.max(benchmark.marketLow * 0.7, Math.min(effectiveRate, benchmark.marketHigh * 1.3));
