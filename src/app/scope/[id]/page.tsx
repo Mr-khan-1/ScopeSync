@@ -230,27 +230,7 @@ export default function ScopePageViewer() {
     if (scope.status === 'freelancer_review' && isFreelancer) {
       return (
         <div className="flex items-center gap-2 ml-4 shrink-0">
-          {scope.budgetType === 'fixed_total' && (
-            <div className="flex items-center mr-4">
-              <Label htmlFor={`price-${item.id}`} className="sr-only">Price</Label>
-              <span className="text-white/50 text-sm mr-2">$</span>
-              <Input
-                id={`price-${item.id}`}
-                type="number"
-                placeholder="Price"
-                className="w-24 h-8 text-sm bg-black/40 border-white/10 text-right"
-                value={item.estimatedPrice || ''}
-                onChange={(e) => {
-                  const updatedItems = scope.items.map(i => 
-                    i.id === item.id ? { ...i, estimatedPrice: parseFloat(e.target.value) || 0 } : i
-                  );
-                  const updated = { ...scope, items: updatedItems };
-                  setScope(updated);
-                  saveScope(updated);
-                }}
-              />
-            </div>
-          )}
+
           <button 
             onClick={() => handleFreelancerApproval(item.id, true)}
             className={`p-1.5 rounded-full transition-colors ${item.freelancerApproved === true ? 'bg-green-500 text-white' : 'bg-white/10 text-white/40 hover:text-green-400 hover:bg-green-500/20'}`}
@@ -485,9 +465,10 @@ export default function ScopePageViewer() {
                 <p className="text-lg text-white mt-1 leading-snug font-light">
                   {scope.budgetType === 'hourly' ? `$${scope.hourlyRate}/hr` : `Fixed Total`}
                 </p>
-                {scope.budgetType === 'fixed_total' && scope.items.some(i => i.estimatedPrice) && (
-                  <p className="text-sm text-white/50 mt-1">
-                    Total: ${scope.items.reduce((sum, i) => sum + (i.estimatedPrice || 0), 0)}
+                {scope.budgetType === 'fixed_total' && scope.totalBudget && (
+                  <p className="text-lg font-medium text-emerald-400 mt-1">
+                    {scope.currency === 'PKR' ? 'Rs. ' : scope.currency === 'USD' ? '$' : scope.currency + ' '}
+                    {scope.totalBudget.toLocaleString()}
                   </p>
                 )}
               </div>

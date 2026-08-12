@@ -142,9 +142,6 @@ export const AgreementPDF = ({ scope }: { scope: ScopePage }) => {
               <View key={i} style={styles.itemRow}>
                 <Text style={styles.bullet}>•</Text>
                 <Text style={styles.itemText}>{item.text}</Text>
-                {isFixed && item.estimatedPrice ? (
-                  <Text style={styles.itemPrice}>{formatCurrency(item.estimatedPrice, scope.currency)}</Text>
-                ) : null}
               </View>
             ))}
           </View>
