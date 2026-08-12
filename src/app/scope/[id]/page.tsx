@@ -233,13 +233,13 @@ export default function ScopePageViewer() {
 
           <button 
             onClick={() => handleFreelancerApproval(item.id, true)}
-            className={`p-1.5 rounded-full transition-colors ${item.freelancerApproved === true ? 'bg-green-500 text-white' : 'bg-white/10 text-white/40 hover:text-green-400 hover:bg-green-500/20'}`}
+            className={`p-1.5 rounded-full transition-all ${item.freelancerApproved === true ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-green-500/10 text-green-500/40 hover:text-green-400 hover:bg-green-500/20 hover:scale-110'}`}
           >
             <Check className="w-4 h-4" />
           </button>
           <button 
             onClick={() => handleFreelancerApproval(item.id, false)}
-            className={`p-1.5 rounded-full transition-colors ${item.freelancerApproved === false ? 'bg-red-500 text-white' : 'bg-white/10 text-white/40 hover:text-red-400 hover:bg-red-500/20'}`}
+            className={`p-1.5 rounded-full transition-all ${item.freelancerApproved === false ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-500/40 hover:text-red-400 hover:bg-red-500/20 hover:scale-110'}`}
           >
             <X className="w-4 h-4" />
           </button>
@@ -253,13 +253,13 @@ export default function ScopePageViewer() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => handleClientApproval(item.id, true)}
-              className={`p-1.5 rounded-full transition-colors ${item.clientApproved === true ? 'bg-green-500 text-white' : 'bg-white/10 text-white/40 hover:text-green-400 hover:bg-green-500/20'}`}
+              className={`p-1.5 rounded-full transition-all ${item.clientApproved === true ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-green-500/10 text-green-500/40 hover:text-green-400 hover:bg-green-500/20 hover:scale-110'}`}
             >
               <Check className="w-4 h-4" />
             </button>
             <button 
               onClick={() => handleClientApproval(item.id, false)}
-              className={`p-1.5 rounded-full transition-colors ${item.clientApproved === false ? 'bg-red-500 text-white' : 'bg-white/10 text-white/40 hover:text-red-400 hover:bg-red-500/20'}`}
+              className={`p-1.5 rounded-full transition-all ${item.clientApproved === false ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-500/40 hover:text-red-400 hover:bg-red-500/20 hover:scale-110'}`}
             >
               <X className="w-4 h-4" />
             </button>
