@@ -41,10 +41,13 @@ Experience the tool right away at: **[https://scope-sync-one.vercel.app/](https:
    npm run dev
    ```
 
-3. **Configure Settings**
-   - Open `http://localhost:3000`
-   - Navigate to **Settings** and add your **Gemini API Key**.
-   - Configure your Agency name and rates.
+3. **Configure Settings (BYOK)**
+   ScopeSync uses a Bring Your Own Key (BYOK) architecture for maximum privacy. To configure:
+   - 1. Get a free Gemini key at [aistudio.google.com](https://aistudio.google.com) (free, no credit card required).
+   - 2. Copy your generated API key.
+   - 3. Go to **Settings** in the ScopeSync app.
+   - 4. Paste your key in the API Key field and save.
+   - 5. Done! You can also configure your Agency name and rates here.
 
 4. **Extract your first Scope**
    - Go to **New Scope** and paste a sample project brief to see the magic in action.

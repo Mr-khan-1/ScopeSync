@@ -252,6 +252,8 @@ export default function ScopePageViewer() {
           <button 
             onClick={() => handleFreelancerApproval(item.id, false)}
             className={`p-1.5 rounded-full transition-all ${item.freelancerApproved === false ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-500/40 hover:text-red-400 hover:bg-red-500/20 hover:scale-110'}`}
+            aria-label="Reject item"
+            title="Reject item"
           >
             <X className="w-4 h-4" />
           </button>
@@ -266,6 +268,8 @@ export default function ScopePageViewer() {
             <button 
               onClick={() => handleClientApproval(item.id, false)}
               className={`p-1.5 rounded-full transition-all ${item.clientApproved === false ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-red-500/10 text-red-500/40 hover:text-red-400 hover:bg-red-500/20 hover:scale-110'}`}
+              aria-label="Reject item"
+              title="Reject item"
             >
               <X className="w-4 h-4" />
             </button>
@@ -303,6 +307,7 @@ export default function ScopePageViewer() {
           onClick={() => handleBulkApproval(category, true)}
           className={`p-2 rounded-full transition-all ${allApproved ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white hover:scale-110'}`}
           title="Approve All"
+          aria-label="Approve all items in this section"
         >
           <Check className="w-5 h-5" />
         </button>
