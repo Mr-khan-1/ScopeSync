@@ -6,8 +6,8 @@ const styles = StyleSheet.create({
   page: { padding: 30, fontFamily: 'Helvetica', fontSize: 9, color: '#1a1a1a', lineHeight: 1.35 },
   header: { marginBottom: 15, borderBottom: '1.5pt solid #2563eb', paddingBottom: 10 },
   brand: { fontSize: 8, color: '#2563eb', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
-  docTitle: { fontSize: 18, fontWeight: 'bold', color: '#0f172a', marginTop: 2 },
-  subTitle: { fontSize: 8, color: '#64748b', marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
+  docTitle: { fontSize: 18, fontWeight: 'bold', color: '#0f172a', marginTop: 4, marginBottom: 8, lineHeight: 1.2 },
+  subTitle: { fontSize: 8, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 },
   
   metaBox: { flexDirection: 'row', backgroundColor: '#f8fafc', border: '0.5pt solid #e2e8f0', borderRadius: 4, padding: 10, marginBottom: 15 },
   metaBlock: { flex: 1 },
