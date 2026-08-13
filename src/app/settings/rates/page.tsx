@@ -104,10 +104,10 @@ export default function RatesSettingsPage() {
         <div className="glass-card rounded-[2rem] p-8 border-white/10 space-y-6 md:col-span-2">
           <h2 className="text-xl font-semibold border-b border-white/10 pb-4">API & Identity</h2>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="gemini-key" className="text-sm font-medium text-white/80">Gemini API Key</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input 
                   id="gemini-key"
                   type="password"
@@ -149,9 +149,9 @@ export default function RatesSettingsPage() {
             )}
             
             {settings.businessType === 'agency' && (
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="company-stamp" className="text-sm font-medium text-white/80">Company Stamp / Logo (Optional)</Label>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   {settings.companyStampDataUrl && (
                     <img src={settings.companyStampDataUrl} alt="Company Stamp Preview" className="h-12 w-auto object-contain bg-white/5 rounded p-1" />
                   )}
@@ -184,8 +184,8 @@ export default function RatesSettingsPage() {
         <div className="glass-card rounded-[2rem] p-8 border-white/10 space-y-6">
           <h2 className="text-xl font-semibold border-b border-white/10 pb-4">Base Rate & Profile</h2>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-white/80">Your Name</label>
               <Input 
                 className="bg-black/40 border-white/10" 
@@ -340,8 +340,8 @@ export default function RatesSettingsPage() {
         </p>
 
         {settings.customRates.length > 0 && (
-          <div className="bg-black/20 rounded-2xl border border-white/5 overflow-hidden">
-            <table className="w-full text-sm text-left">
+          <div className="bg-black/20 rounded-2xl border border-white/5 overflow-x-auto">
+            <table className="w-full text-sm text-left min-w-[500px]">
               <thead className="text-white/40 uppercase bg-white/5 border-b border-white/5">
                 <tr>
                   <th className="px-6 py-4 font-medium">Task Type</th>
@@ -393,7 +393,7 @@ export default function RatesSettingsPage() {
                   onChange={e => setNewRate({...newRate, taskType: e.target.value})}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white/80">Rate Type</label>
                   <select 
